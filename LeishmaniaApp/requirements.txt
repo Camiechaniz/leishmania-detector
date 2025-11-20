@@ -3,3 +3,12 @@ tensorflow
 numpy
 pillow
 gunicorn
+streamlit
+Pillow
+torch
+opencv-python
+ultralytics
+numpy
+pandas
+
+
