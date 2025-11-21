@@ -16,6 +16,10 @@ import json
 st.set_page_config(page_title="Detector Leishmania y Macrófagos", page_icon="Microbe", layout="wide")
 
 # ==================== RUTAS GLOBALES ====================
+import os
+os.environ["YOLO_CONFIG_DIR"] = "/tmp/Ultralytics"
+os.makedirs("/tmp/Ultralytics", exist_ok=True)
+
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = BASE_DIR / "modelos"
 
@@ -25,7 +29,6 @@ PARASITOS_PATH = MODEL_DIR / "best_parasitos.pt"
 # Carpeta local dentro del proyecto
 OUTPUT_DIR = BASE_DIR / "salidas" / time.strftime("%Y%m%d_%H%M%S")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
 
 # ARCHIVOS GLOBALES PARA HISTORIAL
 HISTORIAL_CSV = BASE_DIR / "HISTORIAL_TODOS_DATASETS.csv"
@@ -61,15 +64,26 @@ def get_model_parasitos():
     return _model_parasitos
 
 # ==================== UTILIDADES ====================
-def imread_robusto(path_or_bytes):
-    if isinstance(path_or_bytes, bytes):
-        img = cv2.imdecode(np.frombuffer(path_or_bytes, np.uint8), cv2.IMREAD_COLOR)
-    else:
-        img = cv2.imread(str(path_or_bytes), cv2.IMREAD_COLOR)
-    if img is not None:
-        return img
-    pil = Image.open(io.BytesIO(path_or_bytes) if isinstance(path_or_bytes, bytes) else path_or_bytes).convert("RGB")
-    return cv2.cvtColor(np.array(pil), cv2.COLOR_RGB2BGR)
+def imread_robusto(data):
+    """Carga robusta de imágenes desde bytes o path.
+    Devuelve ndarray BGR o None si falla."""
+    try:
+        if isinstance(data, bytes):
+            arr = np.frombuffer(data, np.uint8)
+            img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+            if img is not None:
+                return img
+        else:
+            img = cv2.imread(str(data), cv2.IMREAD_COLOR)
+            if img is not None:
+                return img
+        # fallback PIL
+        pil = Image.open(io.BytesIO(data) if isinstance(data, bytes) else data)
+        pil = pil.convert("RGB")
+        return cv2.cvtColor(np.array(pil), cv2.COLOR_RGB2BGR)
+    except Exception as e:
+        st.error(f"Error al leer imagen: {e}")
+        return None
 
 def bgr_to_hsi_s_channel(bgr):
     bgr = bgr.astype(np.float32) / 255.0
@@ -285,99 +299,14 @@ Esta herramienta analiza imágenes microscópicas para contar macrófagos y par�
 
 ## INSTRUCCIONES DE USO
 
-### 0. Toma de imágenes
-- Antes de iniciar el proceso, es imperativo contar con el conjunto de datos (dataset) definitivamente dispuesto.
-  Esto implica que las imágenes deben haber sido previamente capturadas usando
-  la **cámara del microscopio** o la **cámara de un teléfono móvil**.
+... (texto unchanged) ...
 
-### 1. Configuración inicial
-- Ingresa un **ID del dataset** (texto único).
-- Ingresa la **concentración de droga** (en μM).
-- Subí tus imágenes.
-  Se recomienda subir **entre 15 y 20 imágenes** (JPG, PNG o TIF) para asegurar llegar a
-  **200 macrófagos válidos**.
-**WARNING:** Si no alcanzás 200 macrófagos válidos, **no se generará el punto** en el gráfico.
-
----
-
-### 2. Modos de imagen
-
-## 📱 Si las imágenes se obtuvieron con un **teléfono móvil**
-Normalmente tendrán un **formato circular**.
-
-Hay dos opciones:
-
-### ✔ **A) CON RECORTE**
-- Recorte **rectangular** manual con sliders X/Y.
-- **IMPORTANTE:** Si recortás, **NO** podrás usar máscara de correcciones.
-- El software detecta automáticamente el **borde rectangular** para excluir macrófagos inválidos.
-
-NOTA: UNA MÁSCARA ES UNA IMAGEN CON FONDO BLANCO DONDE SOLO SE VEN LAS IMPERFECCIONES DE LA CÁMARA. EL SOFTWARE MARCA LA UBICACIÔN
-DE ESTAS MISMAS Y LAS APLICA SOBRE LAS IMAGENES A ANALIZAR ELIMINADOLAS LO MAYOR POSIBLE
-
-### ✔ **B) SIN RECORTE**
-- Se aplica el pipeline **circular** con fondo negro.
-- Permite usar **máscara de imperfecciones** si querés.
-- El software detecta automáticamente el **borde circular** para excluir macrófagos inválidos.
-
----
-
-## 🔬 Si las imágenes se obtuvieron con **microscopio**
-Siempre son **rectangulares**.
-
-Solo hay que elegir si querés:
-
-### ✔ **A) CON MÁSCARA**
-- Se carga una máscara de imperfecciones.
-- Se aplica automáticamente.
-- Se usa borde rectangular.
-
-### ✔ **B) SIN MÁSCARA**
-- Se procesa directamente.
-- Borde rectangular automático.
-
-**IMPORTANTE:¡ESTA OPCIÓN AÚN ESTA EN DESAROLLO! LOS RESULTADOS NO SON DE CONFIANZA TODAVÍA**
-
----
-
-### 3. Procesamiento
-- Pulsá **“Procesar todas las imágenes”**.
-- Verás:
-  - Macrófagos **verdes** → válidos
-  - Macrófagos **rojos** → tocan el borde, descartados
-  - Parásitos **verdes** → válidos
-  - Parásitos **rojos** → dentro de macrófagos inválidos
-
----
-
-### 4. Agregar al gráfico
-- Cuando llegues a 200 macrófagos válidos, tocá **“Agregar al gráfico”**.
-- Se guarda un punto:
-  **X:** concentración
-  **Y:** parásitos por 200 macrófagos.
-
----
-
-### 5. Nuevo dataset
-- Podés borrar el dataset actual desde
-  **“Borrar dataset actual y subir nuevas imágenes"**.
-
----
-
-### Notas importantes
-- **Verde = válido**
-- **Rojo = descartado**
-- **POR FAVOR ESPERAR** a que termine completamente la acción que solicitaste (procesar imágenes, descargar ZIP, agregar punto al gráfico, etc.) antes de realizar otra acción nueva.
-- Mientras la app está procesando, verás en la **esquina superior derecha** el ícono de **un hombre en bicicleta**.
-  Cuando ese ícono desaparece, significa que el proceso terminó y ya podés continuar. Esto evita errores y asegura que todos los resultados sean correctos.
 - Todos los resultados se guardan en `/content/salidas`.
 """)
 
     # 👉 Diagrama de flujo SOLO en esta pestaña
     st.markdown("#### Diagrama de flujo")
     st.image("assets/FLUJOGRAMA_PAGINA_WEB.jpg", use_container_width=True)
-
-
 
 with tab_analizar:
     st.header("Analizar imágenes")
@@ -414,6 +343,14 @@ with tab_analizar:
     for k, v in defaults.items():
         if k not in st.session_state: st.session_state[k] = v
 
+    # === BLOQUE OBLIGATORIO: inicialización adicional (setdefault) ===
+    # (esto asegura que claves necesarias siempre existan aunque algo interrumpa)
+    for key, val in [
+        ("uploaded_images", {}), ("image_modes", {}), ("crop_params", {}), ("use_crop", {}),
+        ("white_mask_cell", None), ("white_mask_micro", None), ("processed_images", {}), ("image_data", [])
+    ]:
+        st.session_state.setdefault(key, val)
+
     if 'grafico_data_global' not in st.session_state:
         st.session_state.grafico_data_global = json.load(open(GRAFICO_DATA_GLOBAL)) if GRAFICO_DATA_GLOBAL.exists() else []
     if 'historial_df' not in st.session_state:
@@ -443,65 +380,131 @@ with tab_analizar:
         st.success("Dataset borrado. Podés cargar uno nuevo.")
         st.rerun()
 
-    # ----- Subir imágenes -----
-    uploaded_files = st.file_uploader("Sube imágenes", type=["jpg","jpeg","png","tif"], accept_multiple_files=True,
-                                      key=f"uploader_{st.session_state.uploader_key}")
+# ----- Subir imágenes -----
+uploaded_files = st.file_uploader(
+    "Sube imágenes",
+    type=["jpg","jpeg","png","tif"],
+    accept_multiple_files=True,
+    key=f"uploader_{st.session_state.uploader_key}"
+)
 
-    if uploaded_files:
-        st.session_state.uploaded_images = {f.name: f.getvalue() for f in uploaded_files}
-        st.success("¡Imágenes cargadas!")
+if uploaded_files:
+    # Guardamos bytes una sola vez
+    st.session_state.uploaded_images = {f.name: f.getvalue() for f in uploaded_files}
+    st.success("¡Imágenes cargadas!")
 
-        st.session_state.image_source = st.radio("Origen de las imágenes",
-            ("Cámara del microscopio", "Dispositivo móvil"),
-            index=1 if st.session_state.image_source=="Dispositivo móvil" else 0)
+    # Origen
+    st.session_state.image_source = st.radio(
+        "Origen de las imágenes",
+        ("Cámara del microscopio", "Dispositivo móvil"),
+        index=1 if st.session_state.image_source=="Dispositivo móvil" else 0,
+        key="origen_radio"
+    )
 
-        first_img = imread_robusto(next(iter(st.session_state.uploaded_images.values())))
-        H0, W0 = first_img.shape[:2]
+    # Primera imagen para medidas
+    first_img = imread_robusto(next(iter(st.session_state.uploaded_images.values())))
+    if first_img is None:
+        st.error("No pude leer la primera imagen. Revisá el archivo.")
+        st.stop()
+    H0, W0 = first_img.shape[:2]
 
-        if st.session_state.image_source == "Dispositivo móvil":
-            recorte_opcion = st.radio("¿Querés recortar rectangularmente todas las imágenes?",
-                                      ("Sí, recortar", "No, mantener circular"), index=0 if st.session_state.use_global_crop_cell else 1)
-            st.session_state.use_global_crop_cell = (recorte_opcion == "Sí, recortar")
+    # Si es celular → crop global (REEMPLAZADO para evitar cuelgues)
+    if st.session_state.image_source == "Dispositivo móvil":
+        recorte_opcion = st.radio(
+            "¿Querés recortar rectangularmente todas las imágenes?",
+            ("Sí, recortar", "No, mantener circular"),
+            index=0 if st.session_state.use_global_crop_cell else 1,
+            key="recorte_radio"
+        )
+        st.session_state.use_global_crop_cell = (recorte_opcion == "Sí, recortar")
 
-            if st.session_state.use_global_crop_cell:
-                st.session_state.global_crop_w = st.slider("Ancho del rectángulo (px)", 100, W0, min(st.session_state.global_crop_w, W0))
-                st.session_state.global_crop_h = st.slider("Alto del rectángulo (px)", 100, H0, min(st.session_state.global_crop_h, H0))
+        if st.session_state.use_global_crop_cell:
+            # limitar a un máximo razonable para evitar sliders gigantes que provoquen cuelgues
+            max_w = min(W0, 2000)
+            max_h = min(H0, 2000)
+            st.session_state.global_crop_w = st.slider(
+                "Ancho del rectángulo (px)",
+                100, max_w,
+                min(st.session_state.global_crop_w, max_w),
+                key="global_crop_w"
+            )
+            st.session_state.global_crop_h = st.slider(
+                "Alto del rectángulo (px)",
+                100, max_h,
+                min(st.session_state.global_crop_h, max_h),
+                key="global_crop_h"
+            )
 
-        st.subheader("Configuración por imagen")
-        for name, data in st.session_state.uploaded_images.items():
-            img = imread_robusto(data)
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            h, w = img.shape[:2]
+    # ---------- CONFIG POR IMAGEN ----------
+    st.subheader("Configuración por imagen")
 
-            colA, colB = st.columns(2)
-            with colA:
-                st.image(img_rgb, width=340, caption=f"Original: {name}")
-            with colB:
-                mode = "Celular" if st.session_state.image_source == "Dispositivo móvil" else "Microscopio"
-                st.session_state.image_modes[name] = mode
-                st.markdown(f"**Modo:** {mode}")
+    for idx, (name, data) in enumerate(st.session_state.uploaded_images.items()):
 
-                if mode == "Celular" and st.session_state.use_global_crop_cell:
-                    rect_w = min(st.session_state.global_crop_w, w)
-                    rect_h = min(st.session_state.global_crop_h, h)
-                    if name not in st.session_state.crop_params:
-                        st.session_state.crop_params[name] = {"x": (w-rect_w)//2, "y": (h-rect_h)//2, "w": rect_w, "h": rect_h}
-                    p = st.session_state.crop_params[name]
-                    p["w"], p["h"] = rect_w, rect_h
+        img = imread_robusto(data)
+        if img is None or getattr(img, "size", 0) == 0:
+            st.error(f"No pude cargar {name} — se saltea esa imagen.")
+            continue
 
-                    x = st.slider("Posición X", 0, w-rect_w, p["x"], key=f"x_{name}")
-                    y = st.slider("Posición Y", 0, h-rect_h, p["y"], key=f"y_{name}")
-                    st.session_state.crop_params[name]["x"] = x
-                    st.session_state.crop_params[name]["y"] = y
-                    st.session_state.use_crop[name] = True
+        # Evita cuelgue si la imagen es enorme (redimensiona para la UI solamente)
+        h, w = img.shape[:2]
+        if h > 3500 or w > 3500:
+            scale = 3500 / max(h, w)
+            img = cv2.resize(img, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
 
-                    prev = img.copy()
-                    cv2.rectangle(prev, (x,y), (x+rect_w,y+rect_h), (0,255,0), 4)
-                    st.image(cv2.cvtColor(prev, cv2.COLOR_BGR2RGB), caption="Recorte (verde = válido)", width=340)
-                else:
-                    st.session_state.use_crop[name] = False
-                    if mode == "Celular":
-                        st.info("Se usará pipeline circular (fondo negro + borde automático)")
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        h, w = img.shape[:2]
+
+        colA, colB = st.columns(2)
+
+        with colA:
+            st.image(img_rgb, width=340, caption=f"Original: {name}")
+
+        with colB:
+            mode = "Celular" if st.session_state.image_source == "Dispositivo móvil" else "Microscopio"
+            st.session_state.image_modes[name] = mode
+            st.markdown(f"**Modo:** {mode}")
+
+            # Si usa recorte
+            if mode == "Celular" and st.session_state.use_global_crop_cell:
+
+                rect_w = min(st.session_state.global_crop_w, w)
+                rect_h = min(st.session_state.global_crop_h, h)
+
+                if name not in st.session_state.crop_params:
+                    st.session_state.crop_params[name] = {
+                        "x": (w-rect_w)//2,
+                        "y": (h-rect_h)//2,
+                        "w": rect_w,
+                        "h": rect_h
+                    }
+
+                p = st.session_state.crop_params[name]
+
+                # --- Sliders con claves únicas ---
+                x = st.slider(
+                    f"Posición X ({name})",
+                    0, max(0, w-rect_w), p["x"],
+                    key=f"x_{idx}"
+                )
+                y = st.slider(
+                    f"Posición Y ({name})",
+                    0, max(0, h-rect_h), p["y"],
+                    key=f"y_{idx}"
+                )
+
+                p["x"], p["y"] = x, y
+                p["w"], p["h"] = rect_w, rect_h
+                st.session_state.use_crop[name] = True
+
+                prev = img.copy()
+                cv2.rectangle(prev, (x,y), (x+rect_w,y+rect_h), (0,255,0), 4)
+                st.image(cv2.cvtColor(prev, cv2.COLOR_BGR2RGB),
+                       caption="Recorte (verde = válido)", width=340)
+
+            else:
+                st.session_state.use_crop[name] = False
+                if mode == "Celular":
+                    st.info("Se usará pipeline circular (fondo negro + borde automático)")
 
         # ----- Máscaras -----
         st.subheader("Corrección de imperfecciones (hoja blanca)")
@@ -536,7 +539,10 @@ with tab_analizar:
                 if name in st.session_state.processed_images: continue
                 status.write(f"Procesando {name}...")
                 img_bgr = imread_robusto(data)
-                mode = st.session_state.image_modes[name]
+                if img_bgr is None:
+                    status.write(f"Saltando {name} (no se pudo leer).")
+                    continue
+                mode = st.session_state.image_modes.get(name, "Celular")
 
                 # Recorte o circular
                 if mode == "Celular" and st.session_state.use_global_crop_cell and st.session_state.use_crop.get(name):
@@ -616,7 +622,7 @@ with tab_analizar:
         if st.session_state.total_ok_macrofagos >= 200:
             valor = round(st.session_state.total_parasites / st.session_state.total_ok_macrofagos * 200, 2)
             st.session_state.grafico_data_global.append({"concentracion": st.session_state.drug_concentration,
-                                                        "parasitos_por_200": valor})
+                                                         "parasitos_por_200": valor})
             nueva_fila = pd.DataFrame([{
                 "dataset_id": st.session_state.dataset_id,
                 "drug_concentration": st.session_state.drug_concentration,
@@ -652,9 +658,19 @@ with tab_analizar:
             st.stop()
 
         dataset_id = st.session_state.dataset_id.strip()
-        base_salidas = Path("/content/salidas")
+        base_salidas = BASE_DIR / "salidas"
+
+        # 🔧 Primero aseguramos que exista
+        base_salidas.mkdir(parents=True, exist_ok=True)
+
+        # 🔍 Ahora sí podemos iterarla
         todas_las_fechas = [p for p in base_salidas.iterdir() if p.is_dir()]
-        carpetas_encontradas = [fecha / dataset_id for fecha in todas_las_fechas if (fecha / dataset_id).exists()]
+
+        carpetas_encontradas = [
+            fecha / dataset_id
+            for fecha in todas_las_fechas
+            if (fecha / dataset_id).exists()
+        ]
 
         if not carpetas_encontradas:
             st.error(f"No se encontró ningún dataset con ID: **{dataset_id}**")
