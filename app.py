@@ -372,8 +372,7 @@ Solo hay que elegir si querés:
 
     # 👉 Diagrama de flujo SOLO en esta pestaña
     st.markdown("#### Diagrama de flujo")
-	st.image(str(BASE_DIR/"assets"/"FLUJOGRAMA PAGINA WEB.jpg"),
-        use_container_width=True)
+	st.image(str(BASE_DIR/"assets"/"FLUJOGRAMA PAGINA WEB.jpg"), use_container_width=True)
 
 
 with tab_analizar:
