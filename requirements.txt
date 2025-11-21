@@ -3,9 +3,7 @@ numpy==1.26.4
 opencv-python-headless==4.9.0.80
 Pillow==10.2.0
 pandas==2.2.2
-matplotlib==3.8.4
-ultralytics==8.2.103
-torch==2.5.1
-torchvision==0.20.1
-torchaudio==2.5.1
-psutil
+matplotlib==3.8.2
+ultralytics==8.0.227
+torch==2.1.2
+torchvision==0.16.2
