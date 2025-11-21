@@ -370,12 +370,6 @@ Solo hay que elegir si querés:
 - Todos los resultados se guardan en `/content/salidas`.
 """)
 
-    # 👉 Diagrama de flujo SOLO en esta pestaña
-    st.markdown("#### Diagrama de flujo")
-	st.image(str(BASE_DIR/"assets"/"FLUJOGRAMA PAGINA WEB.jpg"),
-
-
-
 with tab_analizar:
     st.header("Analizar imágenes")
 
