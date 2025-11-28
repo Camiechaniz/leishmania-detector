@@ -527,15 +527,27 @@ with tab_analizar:
                 if name in st.session_state.processed_images: continue
                 status.write(f"Procesando {name}...")
                 img_bgr = imread_robusto(data)
+                if img_bgr is None or img_bgr.size == 0:
+                    st.error(f"La imagen {name} no se pudo leer. Puede estar dañada o en formato no compatible.")
+                    continue
+
                 mode = st.session_state.image_modes[name]
 
                 # Recorte o circular
                 if mode == "Celular" and st.session_state.use_global_crop_cell and st.session_state.use_crop.get(name):
                     p = st.session_state.crop_params[name]
                     img_bgr = img_bgr[p["y"]:p["y"]+p["h"], p["x"]:p["x"]+p["w"]]
+                    if img_bgr.size == 0:
+                        st.error(f"El recorte de {name} quedó vacío. Ajustá los sliders.")
+                        continue
+
                     edge_mask = make_rect_edge_mask(img_bgr.shape[0], img_bgr.shape[1])
                 elif mode == "Celular":
                     img_bg, _, _, edge_mask, _, _ = circular_fondo_negro_y_borde(img_bgr)
+                    if img_bg is None or img_bg.size == 0:
+                        st.error(f"La detección circular falló para {name}. La imagen es demasiado pequeña o no es circular.")
+                        continue
+
                     img_bgr = img_bg.copy()
                 else:
                     edge_mask = make_rect_edge_mask(img_bgr.shape[0], img_bgr.shape[1])
@@ -556,6 +568,10 @@ with tab_analizar:
                 st.session_state.total_ok_macrofagos += ok_m
                 st.session_state.total_parasites += para_v
                 st.session_state.processed_images[name] = cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB)
+
+                if det_vis is None or det_vis.size == 0:
+                    st.error(f"Ocurrió un error procesando {name}. Resultado inválido.")
+                    continue
 
                 placeholder.image(cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB), caption=name, use_container_width=True)
 
