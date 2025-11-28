@@ -706,9 +706,9 @@ with tab_analizar:
                     data=f,
                     file_name=zip_path.name,
                     mime="application/zip",
-                    type="secondary",
-                    use_container_width=True
+                    type="secondary"
                 )
+
             st.success(f"¡ZIP listo! {len(list(dataset_path.rglob('*')))} archivos comprimidos")
             st.balloons()
 
