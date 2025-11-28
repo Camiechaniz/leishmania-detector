@@ -480,8 +480,16 @@ with tab_analizar:
                     p = st.session_state.crop_params[name]
                     p["w"], p["h"] = rect_w, rect_h
 
-                    x = st.slider("Posición X", 0, w-rect_w, p["x"], key=f"x_{name}")
-                    y = st.slider("Posición Y", 0, h-rect_h, p["y"], key=f"y_{name}")
+                    max_x = max(0, w - rect_w)
+                    max_y = max(0, h - rect_h)
+                    
+                    if max_x == 0 or max_y == 0:
+                        st.warning("No se puede ajustar el recorte porque el tamaño de la imagen o del rectángulo no es válido.")
+                        continue
+                    
+                    x = st.slider("Posición X", 0, max_x, p["x"], key=f"x_{name}")
+                    y = st.slider("Posición Y", 0, max_y, p["y"], key=f"y_{name}")
+
                     st.session_state.crop_params[name]["x"] = x
                     st.session_state.crop_params[name]["y"] = y
                     st.session_state.use_crop[name] = True
@@ -573,7 +581,7 @@ with tab_analizar:
                     st.error(f"Ocurrió un error procesando {name}. Resultado inválido.")
                     continue
 
-                placeholder.image(cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB), caption=name, use_container_width=True)
+                placeholder.image(cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB), caption=name)
 
                 base = Path(name).stem
                 cv2.imwrite(str(out_dir/f"{base}_det.jpg"), det_vis)
