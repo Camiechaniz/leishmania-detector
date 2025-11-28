@@ -1,14 +1,8 @@
 streamlit==1.37.0
 ultralytics==8.3.227
-
-# Torch CPU estable (compatible con ultralytics 8.3.x)
-torch==2.2.2
-torchvision==0.17.2
-
-# OpenCV headless
+torch==2.8.0
+torchvision==0.19.0
 opencv-python-headless==4.9.0.80
-
-# Dependencias comunes
 numpy==1.26.4
 pillow==10.2.0
 pyyaml==6.0.1
@@ -16,6 +10,7 @@ requests==2.31.0
 scikit-learn==1.3.2
 pandas==2.2.2
 matplotlib==3.7.2
+
 
 
 
