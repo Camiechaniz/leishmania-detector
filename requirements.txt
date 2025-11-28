@@ -1,11 +1,11 @@
 streamlit==1.37.0
 ultralytics==8.3.227
 
-# Torch CPU (compatible con Python 3.10–3.12 y Ultralytics 8.3.x)
+# Torch CPU estable (compatible con ultralytics 8.3.x)
 torch==2.2.2
 torchvision==0.17.2
 
-# OpenCV sin soporte de GUI
+# OpenCV headless
 opencv-python-headless==4.9.0.80
 
 # Dependencias comunes
@@ -16,6 +16,8 @@ requests==2.31.0
 scikit-learn==1.3.2
 pandas==2.2.2
 matplotlib==3.7.2
+
+
 
 
 
