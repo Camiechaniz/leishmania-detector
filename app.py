@@ -266,6 +266,7 @@ def detect_on_S_with_border(S_gray, edge_mask, conf_macro, conf_para):
             det_rows.append([x1, y1, x2, y2, 0.0, inside_invalid, "parasito"])
 
     total_macro = ok_macro + touch_macro
+    annot = annot.astype(np.uint8)
     return annot, det_rows, total_macro, ok_macro, touch_macro, parasites_total, parasites_in_valid
 
 # ============================================================
@@ -580,7 +581,8 @@ with tab_analizar:
                 if det_vis is None or not isinstance(det_vis, np.ndarray) or det_vis.size < 10:
                     st.error(f"Ocurrió un error procesando {name}. Resultado inválido.")
                     continue
-
+                    
+                det_vis = det_vis.astype(np.uint8)
                 placeholder.image(det_vis, caption=name)
 
                 base = Path(name).stem
