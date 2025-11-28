@@ -577,11 +577,11 @@ with tab_analizar:
                 st.session_state.total_parasites += para_v
                 st.session_state.processed_images[name] = cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB)
 
-                if det_vis is None or det_vis.size == 0:
+                if det_vis is None or not isinstance(det_vis, np.ndarray) or det_vis.size < 10:
                     st.error(f"Ocurrió un error procesando {name}. Resultado inválido.")
                     continue
 
-                placeholder.image(cv2.cvtColor(det_vis, cv2.COLOR_BGR2RGB), caption=name)
+                placeholder.image(det_vis, caption=name)
 
                 base = Path(name).stem
                 cv2.imwrite(str(out_dir/f"{base}_det.jpg"), det_vis)
