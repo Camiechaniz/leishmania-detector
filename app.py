@@ -279,7 +279,9 @@ with tab_inicio:
 
     st.write("""
 **¡Bienvenido al Detector de Leishmania!**
-Esta herramienta analiza imágenes microscópicas para contar macrófagos y parásitos según la concentración de droga.
+Esta herramienta permite analizar imágenes histológicas para la detección y el conteo automático de macrófagos y amastigotes en muestras de infección in vitro, en el marco de una etapa de validación externa del software.
+
+⚠️ Importante: algunas funciones se encuentran en desarrollo y no deben utilizarse durante esta instancia de validación. Lea atentamente el set de instrucciones adicionales para conocer más.
 
 ## INSTRUCCIONES DE USO
 
