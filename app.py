@@ -318,13 +318,15 @@ Hay dos opciones:
 
 ⚠️ **IMPORTANTE: ¡ESTA OPCIÓN AÚN ESTA EN DESARROLLO! POR FAVOR NO USE ESTA OPCIÓN DURANTE LA ETAPA DE VALIDACIÓN**
 
+**NOTA: UNA MÁSCARA ES UNA IMAGEN CON FONDO BLANCO DONDE SOLO SE VEN LAS IMPERFECCIONES DE LA CÁMARA. EL SOFTWARE MARCA LA UBICACIÓN 
+DE ESTAS Y LAS APLICA SOBRE LAS IMÁGENES A ANALIZAR, ELIMINANDOLAS TANTO COMO SEA POSIBLE.** 
+
 ### ✔ **B) SIN RECORTE**
 - Se aplica el pipeline **circular** con fondo negro.
 - Permite usar **máscara de imperfecciones** si querés.
 - El software detecta automáticamente el **borde circular** para excluir macrófagos inválidos. 
 
-**NOTA: UNA MÁSCARA ES UNA IMAGEN CON FONDO BLANCO DONDE SOLO SE VEN LAS IMPERFECCIONES DE LA CÁMARA. EL SOFTWARE MARCA LA UBICACIÓN 
-DE ESTAS Y LAS APLICA SOBRE LAS IMÁGENES A ANALIZAR, ELIMINANDOLAS TANTO COMO SEA POSIBLE.**
+
 ---
 
 ## 🔬 Si las imágenes se obtuvieron con **microscopio**
