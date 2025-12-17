@@ -299,7 +299,7 @@ Esta herramienta permite analizar imágenes histológicas para la detección y e
 - Subí tus imágenes.
   Se recomienda subir **entre 15 y 20 imágenes** (JPG, PNG o TIF) para asegurar llegar a
   **200 macrófagos válidos**.
-**WARNING:** En caso de no alcanzar los 200 macrófagos válidos, **no se generará el punto** en el gráfico.
+    ⚠️ **WARNING:** En caso de no alcanzar los 200 macrófagos válidos, **no se generará el punto** en el gráfico.
 
 ---
 
@@ -315,7 +315,7 @@ Hay dos opciones:
 - **IMPORTANTE:** Si recortás, **NO** podrás usar máscara de correcciones.
 - El software detecta automáticamente el **borde rectangular** para excluir macrófagos inválidos.
 
-**IMPORTANTE:¡ESTA OPCIÓN AÚN ESTA EN DESARROLLO! POR FAVOR NO USE ESTA OPCIÓN DURANTE LA ETAPA DE VALIDACIÓN**
+⚠️ **IMPORTANTE: ¡ESTA OPCIÓN AÚN ESTA EN DESARROLLO! POR FAVOR NO USE ESTA OPCIÓN DURANTE LA ETAPA DE VALIDACIÓN**
 
 ### ✔ **B) SIN RECORTE**
 - Se aplica el pipeline **circular** con fondo negro.
@@ -340,7 +340,7 @@ Solo hay que elegir si querés:
 - Se procesa directamente.
 - Borde rectangular automático.
 
-**IMPORTANTE:¡ESTA OPCIÓN AÚN ESTA EN DESARROLLO! POR FAVOR NO USE ESTA OPCIÓN DURANTE LA ETAPA DE VALIDACIÓN**
+⚠️ **IMPORTANTE:¡ESTA OPCIÓN AÚN ESTA EN DESARROLLO! POR FAVOR NO USE ESTA OPCIÓN DURANTE LA ETAPA DE VALIDACIÓN**
 
 ---
 
