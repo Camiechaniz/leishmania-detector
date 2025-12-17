@@ -299,7 +299,7 @@ Esta herramienta permite analizar imágenes histológicas para la detección y e
 - Subí tus imágenes.
   Se recomienda subir **entre 15 y 20 imágenes** (JPG, PNG o TIF) para asegurar llegar a
   **200 macrófagos válidos**.
-    ⚠️ **WARNING:** En caso de no alcanzar los 200 macrófagos válidos, **no se generará el punto** en el gráfico.
+  ⚠️ **WARNING:** En caso de no alcanzar los 200 macrófagos válidos, **no se generará el punto** en el gráfico.
 
 ---
 
